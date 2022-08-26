@@ -1,0 +1,234 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.IO;
+namespace TrabajoFinal
+{
+ public partial class Frm_New : Form
+ {
+ public Frm_New()
+ {
+ InitializeComponent();
+ Lbl_Dato1.Text = "";
+ Lbl_Dato2.Visible = false;
+ Txt_Dato2.Visible = false;
+ Cmb_Medida2.Visible = false;
+ Btn_Calculate.Location = new Point(158, 247);
+ Btn_Erase.Location = new Point(158, 296);
+ }
+ //variables
+ Pen pincel = new Pen(Color.Red, 2);
+ string figura,data;
+ double radio, lado, altura, labase, area;
+ Graphics g;
+ //check if value is up to 270
+ private void Txt_Dato1_Leave(object sender, EventArgs e)
+ {
+ if (Double.Parse(Txt_Dato1.Text) > 270)
+ {
+ { MessageBox.Show("Por el tamaño del contenedor de la grafica los valores no pueden
+pasar de 270", "Valores muy grandes", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+ }
+ }
+ //check if value is up to 270
+ private void Txt_Dato2_Leave(object sender, EventArgs e)
+ {
+ if (Double.Parse(Txt_Dato2.Text) > 270)
+ {
+ { MessageBox.Show("Por el tamaño del contenedor de la grafica los valores no pueden
+pasar de 270", "Valores muy grandes", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+ }
+ }
+ //clear data
+ private void Btn_Erase_Click(object sender, EventArgs e)
+ {
+ g.Clear(Color.WhiteSmoke);
+ Txt_Dato1.Text = "";
+ Txt_Dato2.Text = "";
+ }
+ //save into txt file
+ private void Btn_Save_Click(object sender, EventArgs e)
+ {
+ try
+ {
+ SaveFileDialog saveFileDialog = new SaveFileDialog();
+ saveFileDialog.Filter = "Text files (*.txt)|*.txt";
+ saveFileDialog.Title = "Guardar area";
+ saveFileDialog.ShowDialog();
+ if (saveFileDialog.FileName != "")
+ {
+ switch (data)
+ {
+ case "Cuadrado":
+ {
+ StreamWriter sw = new StreamWriter(saveFileDialog.FileName);
+ sw.WriteLine("Cuadrado");
+ sw.WriteLine(lado.ToString());
+ sw.WriteLine(Lbl_Resultado.Text);
+ sw.Close();
+ break;
+ }
+ case "Circulo":
+ {
+ StreamWriter sw = new StreamWriter(saveFileDialog.FileName);
+ sw.WriteLine("Circulo");
+ sw.WriteLine(radio.ToString());
+ sw.WriteLine(Lbl_Resultado.Text);
+ sw.Close();
+ break;
+ }
+ case "Triangulo":
+ {
+ StreamWriter sw = new StreamWriter(saveFileDialog.FileName);
+ sw.WriteLine("Triangulo");
+ sw.WriteLine(labase.ToString());
+ sw.WriteLine(altura.ToString());
+ sw.WriteLine(Lbl_Resultado.Text);
+ sw.Close();
+ break;
+ }
+ }
+ { MessageBox.Show("Datos guardados exitosamente", "Datos Guardados",
+MessageBoxButtons.OK, MessageBoxIcon.Information); }
+ Btn_Erase.PerformClick();
+ }
+ }
+ catch
+ {
+ { MessageBox.Show("Datos no guardados", "Error", MessageBoxButtons.OK,
+MessageBoxIcon.Error); return; }
+ }
+ }
+ //go back home
+ private void Btn_Home_Click(object sender, EventArgs e)
+ {
+ Close();
+ }
+ //calculate area
+ private void Btn_Calculate_Click(object sender, EventArgs e)
+ {
+
+ data = Cmb_Figura.Text;
+ switch (data)
+ {
+ case "Circulo":
+ {
+ if (Txt_Dato1.Text != "")
+ {
+ radio = double.Parse(Txt_Dato1.Text);
+ area = 3.14 * radio * radio;
+ Lbl_Resultado.Text = "El area de un CIRCULO de " + radio + " " +
+Cmb_Medida1.Text + " de radio es " + Math.Round(area,2) + " " + Cmb_Medida1.Text + "2. y su
+grafica se representa a continuacion.";
+ if (g != null) { g.Clear(Color.WhiteSmoke); }
+ g = PanelGrafico.CreateGraphics();
+ g.DrawEllipse(pincel, 20, 20, int.Parse(radio.ToString()), int.Parse(radio.ToString()));
+ }
+ break;
+ }
+ case "Cuadrado":
+ {
+ if (Txt_Dato1.Text != "")
+ {
+ lado = double.Parse(Txt_Dato1.Text);
+ area = lado*lado;
+ Lbl_Resultado.Text = "El area de un CUADRADO de " + lado + " " +
+Cmb_Medida1.Text + " de lado es " + Math.Round(area, 2) + " " + Cmb_Medida1.Text + "2. y su
+grafica se representa a continuacion.";
+ if (g != null) { g.Clear(Color.WhiteSmoke); }
+ g = PanelGrafico.CreateGraphics();
+ g.DrawRectangle(pincel, 20, 20, int.Parse(lado.ToString()),
+int.Parse(lado.ToString()));
+ }
+ break;
+ }
+ case "Triangulo":
+ {
+ if (Txt_Dato1.Text != "" && Txt_Dato2.Text!="")
+ {
+ if (Cmb_Medida1.Text != Cmb_Medida2.Text) { MessageBox.Show("Las medidas
+de la base y de la altura del triangulo deben ser iguales", "Medidas diferentes",
+MessageBoxButtons.OK, MessageBoxIcon.Error);return; }
+ labase = double.Parse(Txt_Dato1.Text);
+ altura = double.Parse(Txt_Dato2.Text);
+ area = (labase * altura)/2;
+ Lbl_Resultado.Text = "El area de un TRIANGULO de " + labase + " " +
+Cmb_Medida1.Text + " de base y " + altura + " " + Cmb_Medida2.Text + " de altura es " +
+Math.Round(area, 2) + " " + Cmb_Medida1.Text + "2. y su grafica se representa a continuacion.";
+ if (g != null) { g.Clear(Color.WhiteSmoke); }
+ g = PanelGrafico.CreateGraphics();
+ g.DrawLine(pincel, 20, int.Parse(labase.ToString()), 300,
+int.Parse(labase.ToString()));
+ g.DrawLine(pincel, 20, int.Parse(labase.ToString()), int.Parse(altura.ToString()), 20);
+ g.DrawLine(pincel, int.Parse(altura.ToString()),20,300, int.Parse(labase.ToString()));
+ }
+ else
+ {
+ { MessageBox.Show("Debes ingresar el valor de la base y de la altura del
+triangulo", "Valores incompletos", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+ }
+ break;
+ }
+ }
+
+ }
+ //get the selected figure and show the necesary controls
+ private void Cmb_Figura_SelectedIndexChanged(object sender, EventArgs e)
+ {
+ figura = Cmb_Figura.Text;
+ switch (figura)
+ {
+ case "Circulo":
+ {
+ Lbl_Dato1.Text = "Ingrese el radio";
+ Lbl_Dato2.Visible = false;
+ Txt_Dato2.Visible = false;
+ Cmb_Medida2.Visible = false;
+ Btn_Calculate.Location=new Point(158, 250);
+ Btn_Erase.Location = new Point(158, 296);
+ break;
+ }
+ case "Cuadrado":
+ {
+ Lbl_Dato1.Text = "Ingrese el lado";
+ Lbl_Dato2.Visible = false;
+ Txt_Dato2.Visible = false;
+ Cmb_Medida2.Visible = false;
+ Btn_Calculate.Location = new Point(158, 247);
+ Btn_Erase.Location = new Point(158, 296);
+ break;
+ }
+ case "Triangulo":
+ {
+ Lbl_Dato1.Text = "Ingrese la base";
+ Lbl_Dato2.Text = "Ingrese la altura";
+ Lbl_Dato2.Visible = true;
+ Txt_Dato2.Visible = true;
+ Cmb_Medida2.Visible = true;
+ Btn_Calculate.Location = new Point(158, 296);
+ Btn_Erase.Location = new Point(158, 343);
+ break;
+ }
+
+ }
+ }
+ //only numbers
+ private void Txt_Dato1_KeyPress(object sender, KeyPressEventArgs e)
+ {
+ if(!Char.IsDigit(e.KeyChar) && e.KeyChar != (char)Keys.Back && e.KeyChar != '.')
+ {
+ e.Handled = true;
+ }
+ }
+ //only numbers
+ private void Txt_Dato2_KeyPress(object sender, KeyPressEventArgs e)
+ {
+ if (!Char.IsDigit(e.KeyChar) && e.KeyChar != (char)Keys.Back && e.KeyChar != '.')
+ {
+ e.Handled = true;
